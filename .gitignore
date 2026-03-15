@@ -1,0 +1,7 @@
+.venv/
+.venv-1/
+.streamlit/secrets.toml
+ai_interaction_log.md
+__pycache__/
+*.pyc
+.DS_Store
