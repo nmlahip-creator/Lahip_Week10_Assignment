@@ -1,0 +1,15 @@
+{
+  "id": "chat-20260315183511051199",
+  "title": "Hello My name is Barton, I like bow and ",
+  "created_at": "2026-03-15T18:35:11.051261",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello My name is Barton, I like bow and arrows"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello Barton, it's nice to meet you. It's great that you have a hobby that brings you joy and allows you to connect with nature. Bow and arrow archery is an excellent sport that requires skill, patience, and focus. Do you have a favorite type of bow or arrow, or do you prefer a combination of both?"
+    }
+  ]
+}
