@@ -1,6 +1,5 @@
 from datetime import datetime
 import json
-import os
 from pathlib import Path
 import time
 import requests
@@ -14,14 +13,6 @@ BASE_DIR = Path(__file__).resolve().parent
 CHATS_DIR = BASE_DIR / "chats"
 CHATS_DIR.mkdir(exist_ok=True)
 MEMORY_PATH = BASE_DIR / "memory.json"
-MEMORY_API_URL = (
-    st.secrets.get("MEMORY_API_URL", "").strip()
-    or os.getenv("MEMORY_API_URL", "").strip()
-)
-MEMORY_API_TOKEN = (
-    st.secrets.get("MEMORY_API_TOKEN", "").strip()
-    or os.getenv("MEMORY_API_TOKEN", "").strip()
-)
 
 hf_token = st.secrets.get("HF_TOKEN", "").strip()
 if not hf_token:
@@ -99,19 +90,6 @@ _load_chats()
 def _load_memory() -> None:
     if st.session_state.user_memory:
         return
-    if MEMORY_API_URL:
-        try:
-            resp = requests.get(
-                f"{MEMORY_API_URL.rstrip('/')}/memory",
-                headers=_memory_headers(),
-                timeout=10,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                st.session_state.user_memory = data if isinstance(data, dict) else {}
-                return
-        except requests.exceptions.RequestException:
-            pass
     if MEMORY_PATH.exists():
         try:
             st.session_state.user_memory = json.loads(
@@ -124,18 +102,6 @@ def _load_memory() -> None:
 
 
 def _save_memory() -> None:
-    if MEMORY_API_URL:
-        try:
-            resp = requests.post(
-                f"{MEMORY_API_URL.rstrip('/')}/memory",
-                headers=_memory_headers(),
-                json=st.session_state.user_memory,
-                timeout=10,
-            )
-            if resp.status_code == 200:
-                return
-        except requests.exceptions.RequestException:
-            pass
     try:
         MEMORY_PATH.write_text(
             json.dumps(st.session_state.user_memory, indent=2), encoding="utf-8"
@@ -144,51 +110,12 @@ def _save_memory() -> None:
         pass
 
 
-def _parse_json_object(text: str) -> dict:
-    try:
-        data = json.loads(text)
-    except (TypeError, ValueError):
-        data = None
-    if isinstance(data, dict):
-        return data
-
-    if not text:
-        return {}
-
-    start = text.find("{")
-    end = text.rfind("}")
-    if start == -1 or end == -1 or end <= start:
-        return {}
-    try:
-        data = json.loads(text[start : end + 1])
-    except (TypeError, ValueError):
-        return {}
-    return data if isinstance(data, dict) else {}
-
-
 def _reset_memory() -> None:
     st.session_state.user_memory = {}
-    if MEMORY_API_URL:
-        try:
-            requests.delete(
-                f"{MEMORY_API_URL.rstrip('/')}/memory",
-                headers=_memory_headers(),
-                timeout=10,
-            )
-            return
-        except requests.exceptions.RequestException:
-            pass
     try:
         MEMORY_PATH.write_text("{}", encoding="utf-8")
     except OSError:
         pass
-
-
-def _memory_headers() -> dict:
-    headers = {}
-    if MEMORY_API_TOKEN:
-        headers["Authorization"] = f"Bearer {MEMORY_API_TOKEN}"
-    return headers
 
 
 _load_memory()
@@ -344,7 +271,6 @@ if prompt:
                 {"role": "user", "content": prompt},
             ],
             "max_tokens": 128,
-            "temperature": 0,
         }
         try:
             extract_response = requests.post(
@@ -356,7 +282,7 @@ if prompt:
             if extract_response.status_code == 200:
                 extract_data = extract_response.json()
                 content = extract_data["choices"][0]["message"]["content"]
-                new_memory = _parse_json_object(content)
+                new_memory = json.loads(content)
                 if isinstance(new_memory, dict) and new_memory:
                     st.session_state.user_memory.update(new_memory)
                     _save_memory()
