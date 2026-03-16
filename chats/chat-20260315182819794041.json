@@ -1,0 +1,23 @@
+{
+  "id": "chat-20260315182819794041",
+  "title": "Who plays thor in the MCU?",
+  "created_at": "2026-03-15T18:28:19.794129",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Who plays thor in the MCU?"
+    },
+    {
+      "role": "assistant",
+      "content": "In the Marvel Cinematic Universe (MCU), Thor is portrayed by Chris Hemsworth."
+    },
+    {
+      "role": "user",
+      "content": "My name is Barton and I like to shoot bow and arrows"
+    },
+    {
+      "role": "assistant",
+      "content": "Nice to meet you, Barton. It's not uncommon for people to enjoy shooting bows and arrows, it's a great way to relax and connect with nature. Are you an experienced archer or just starting out?"
+    }
+  ]
+}
