@@ -110,6 +110,28 @@ def _save_memory() -> None:
         pass
 
 
+def _parse_json_object(text: str) -> dict:
+    try:
+        data = json.loads(text)
+    except (TypeError, ValueError):
+        data = None
+    if isinstance(data, dict):
+        return data
+
+    if not text:
+        return {}
+
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or end <= start:
+        return {}
+    try:
+        data = json.loads(text[start : end + 1])
+    except (TypeError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
 def _reset_memory() -> None:
     st.session_state.user_memory = {}
     try:
@@ -271,6 +293,7 @@ if prompt:
                 {"role": "user", "content": prompt},
             ],
             "max_tokens": 128,
+            "temperature": 0,
         }
         try:
             extract_response = requests.post(
@@ -282,7 +305,7 @@ if prompt:
             if extract_response.status_code == 200:
                 extract_data = extract_response.json()
                 content = extract_data["choices"][0]["message"]["content"]
-                new_memory = json.loads(content)
+                new_memory = _parse_json_object(content)
                 if isinstance(new_memory, dict) and new_memory:
                     st.session_state.user_memory.update(new_memory)
                     _save_memory()
