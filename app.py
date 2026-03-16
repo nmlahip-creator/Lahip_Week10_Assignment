@@ -97,6 +97,8 @@ def _load_memory() -> None:
             )
         except (OSError, json.JSONDecodeError):
             st.session_state.user_memory = {}
+    else:
+        st.session_state.user_memory = {}
 
 
 def _save_memory() -> None:
@@ -111,7 +113,7 @@ def _save_memory() -> None:
 def _reset_memory() -> None:
     st.session_state.user_memory = {}
     try:
-        MEMORY_PATH.unlink(missing_ok=True)
+        MEMORY_PATH.write_text("{}", encoding="utf-8")
     except OSError:
         pass
 
